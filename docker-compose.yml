@@ -1,0 +1,125 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: maritime-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-maritime_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-maritime_db}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres-data:/var/lib/postgresql/data  # Change this line
+      - ./logs/postgres:/var/log/postgresql
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    networks:
+      - maritime-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-maritime_user}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # n8n Workflow Automation
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: maritime-n8n
+    restart: unless-stopped
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=${N8N_BASIC_AUTH_ACTIVE:-true}
+      - N8N_BASIC_AUTH_USER=${N8N_BASIC_AUTH_USER}
+      - N8N_BASIC_AUTH_PASSWORD=${N8N_BASIC_AUTH_PASSWORD}
+      - N8N_HOST=${N8N_HOST:-localhost}
+      - N8N_PORT=${N8N_PORT:-5678}
+      - N8N_PROTOCOL=${N8N_PROTOCOL:-http}
+      - WEBHOOK_URL=${WEBHOOK_URL:-http://localhost:5678/}
+      - GENERIC_TIMEZONE=${TIMEZONE:-America/New_York}
+      - N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY}
+      # Database connection for n8n (optional - uses SQLite by default)
+      - DB_TYPE=postgresdb
+      - DB_POSTGRESDB_HOST=postgres
+      - DB_POSTGRESDB_PORT=5432
+      - DB_POSTGRESDB_DATABASE=${N8N_DB_NAME:-n8n}
+      - DB_POSTGRESDB_USER=${POSTGRES_USER:-maritime_user}
+      - DB_POSTGRESDB_PASSWORD=${POSTGRES_PASSWORD}
+      # Python AI Service URL for n8n workflows
+      - PYTHON_AI_SERVICE_URL=http://python-ai:8000/api/v1/analyze
+    volumes:
+      - ./n8n-data:/home/node/.n8n
+      - ./logs/n8n:/var/log/n8n
+    ports:
+      - "${N8N_PORT:-5678}:5678"
+    networks:
+      - maritime-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      python-ai:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget --spider -q http://localhost:5678/healthz || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Python FastAPI AI Service with GPU Support
+  python-ai:
+    build:
+      context: ./python-ai
+      dockerfile: Dockerfile
+    container_name: maritime-python-ai
+    restart: unless-stopped
+    environment:
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=${POSTGRES_USER:-maritime_user}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB:-maritime_db}
+      - CUDA_VISIBLE_DEVICES=0
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+      - TRANSFORMERS_CACHE=/app/model_cache
+      - HF_HOME=/app/model_cache
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - API_KEY=${PYTHON_AI_API_KEY}
+    volumes:
+      - ./python-ai/app:/app/app:ro  # Mount app code (read-only in production)
+      - ./logs/python-ai:/app/logs
+      - python-ai-cache:/app/model_cache  # Persist model downloads
+    ports:
+      - "${PYTHON_AI_PORT:-8000}:8000"
+    networks:
+      - maritime-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+    # CRITICAL: GPU Configuration
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s  # Allow time for model loading
+
+networks:
+  maritime-network:
+    driver: bridge
+    name: maritime-network
+
+volumes:
+  python-ai-cache:
+    name: maritime-python-ai-cache
+  postgres-data:                               # Add this line
+    name: maritime-postgres-data
+

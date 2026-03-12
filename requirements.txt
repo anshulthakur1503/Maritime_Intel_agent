@@ -1,0 +1,47 @@
+--extra-index-url https://download.pytorch.org/whl/cu121
+# FastAPI and Web Framework
+fastapi==0.109.0
+... (the rest of your file)# FastAPI and Web Framework
+fastapi==0.109.0
+uvicorn[standard]==0.27.0
+pydantic==2.5.3
+pydantic-settings==2.1.0
+
+# GPU and Deep Learning
+torch==2.1.2
+transformers==4.36.2
+sentencepiece==0.1.99
+accelerate==0.25.0
+
+# NLP and Finance-specific
+# FinBERT and similar models
+sentence-transformers==2.2.2
+
+# Database
+#psycopg2-binary==2.9.9
+#sqlalchemy==2.0.25
+alembic==1.13.1
+
+# Utilities
+python-dotenv==1.0.0
+httpx==0.26.0
+python-multipart==0.0.6
+email-validator==2.1.0
+
+# Monitoring and Logging
+python-json-logger==2.0.7
+
+# Security
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+
+# Date/Time
+python-dateutil==2.8.2
+
+# System Monitoring
+psutil==5.9.8
+
+# Testing (optional, for development)
+pytest==7.4.4
+pytest-asyncio==0.23.3
+httpx==0.26.0

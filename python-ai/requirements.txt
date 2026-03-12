@@ -1,0 +1,6 @@
+torch==2.1.2
+transformers==4.36.2
+sentencepiece==0.1.99
+accelerate==0.25.0
+sentence-transformers==2.2.2
+spacy==3.7.2
