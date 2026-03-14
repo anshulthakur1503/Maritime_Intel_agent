@@ -2,7 +2,7 @@
 
 Production-ready, GPU-accelerated maritime intelligence platform using n8n, Python FastAPI, and PostgreSQL.
 
-## 🚀 Features
+##Features
 
 - **GPU-Accelerated NLP**: NVIDIA RTX 3050 support for FinBERT and transformer models
 - **Workflow Automation**: n8n for orchestrating complex intelligence workflows
@@ -10,7 +10,7 @@ Production-ready, GPU-accelerated maritime intelligence platform using n8n, Pyth
 - **Production-Ready**: Docker Compose setup with health checks and persistent storage
 - **Financial NLP**: FinBERT for sentiment analysis on maritime trade news
 
-## 📋 Prerequisites
+##Prerequisites
 
 ### System Requirements
 - **OS**: Windows 11 with WSL2 (Ubuntu 22.04 recommended)
@@ -45,7 +45,7 @@ Production-ready, GPU-accelerated maritime intelligence platform using n8n, Pyth
    ```
    You should see your RTX 3050 listed.
 
-## 🛠️ Installation & Setup
+## Installation & Setup
 
 ### Step 1: Clone/Download the Project
 
@@ -129,7 +129,7 @@ Expected output should show your RTX 3050.
 - **PostgreSQL**: localhost:5432
   - Use any PostgreSQL client with credentials from .env
 
-## 🧪 Testing the Setup
+##Testing the Setup
 
 ### 1. GPU Verification
 ```bash
@@ -165,7 +165,7 @@ curl -X POST http://localhost:8000/api/v1/analyze/sentiment \
   }'
 ```
 
-## 📁 Project Structure
+##Project Structure
 
 ```
 maritime-intel-agent/
@@ -191,7 +191,7 @@ maritime-intel-agent/
 └── logs/                     # Application logs
 ```
 
-## 🔧 Common Commands
+##Common Commands
 
 ```bash
 # Start all services
@@ -220,7 +220,7 @@ docker-compose ps
 docker-compose down -v
 ```
 
-## 🐛 Troubleshooting
+##Troubleshooting
 
 ### GPU Not Detected
 
@@ -286,7 +286,7 @@ curl http://localhost:8000/gpu-info
 
 3. Check n8n environment variables for correct URL
 
-## 📚 Next Steps
+##Next Steps
 
 1. **Implement FinBERT Model Loading**
    - Edit `python-ai/app/models/nlp.py`
@@ -312,7 +312,7 @@ curl http://localhost:8000/gpu-info
    - JWT tokens
    - Rate limiting
 
-## 🔒 Security Considerations
+##Security Considerations
 
 - Change all default passwords in `.env`
 - Never commit `.env` to version control
@@ -321,7 +321,7 @@ curl http://localhost:8000/gpu-info
 - Regular security updates
 - Network isolation for production
 
-## 📊 Performance Tips
+##Performance Tips
 
 - **Batch Processing**: Use batch endpoints for multiple texts
 - **GPU Memory**: Monitor with `/gpu-info`, clear cache if needed
@@ -329,14 +329,3 @@ curl http://localhost:8000/gpu-info
 - **Sequence Length**: Truncate long texts to 512 tokens
 - **Concurrent Requests**: FastAPI handles async requests efficiently
 
-## 📝 License
-
-[Add your license here]
-
-## 🤝 Contributing
-
-[Add contribution guidelines]
-
-## 📧 Support
-
-[Add support contact or links]
